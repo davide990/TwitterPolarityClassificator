@@ -118,6 +118,17 @@ class TweetsCleaner:
 
     '''
         @:author Davide
+        @:param dict the dictionary containing the tweets. Each record has the ID as key, and a string (the tweet) as
+            value
+    '''
+    def ProcessDatasetDict(self, dict):
+        new_dict = dict.copy()
+        for id in dict:
+            new_dict[id] = self.ProcessPhrase(dict[id])
+        return new_dict
+
+    '''
+        @:author Davide
         @:param fname the full path to the file to be processed line by line.
     '''
     def ProcessFile(self, fname):
@@ -126,22 +137,3 @@ class TweetsCleaner:
             for line in f:
                 outputList.append(self.ProcessPhrase(line))
         return outputList
-
-# ---------------------------------------------------------------------------------
-# ---------------------------------------------------------------------------------
-if __name__ == "__main__":
-    cleaner = TweetsCleaner()
-
-    #test_str2 = u"Mario Monti: False illusioni, sgradevoli realtà http://t.co/UrlhqFsd Dall'Italia la possibile disintegrazione dell'Unione Europea"
-    test_str2 = u"@mauryred82 l'ho letto quell'articolo in treno sul CORRIERE DELLA SERA... parole durissime..ed e' MARIO MONTI..un moderato.. SIAM MESSI MALE"
-    processed = cleaner.ProcessPhrase(test_str2)
-
-    print(test_str2)
-    print(processed)
-
-
-
-
-'''
-    test_phrase = 'ciaoooooo mondooooo we wellaaa'
-    print(cleaner.FixMultipleLetters(test_phrase))'''

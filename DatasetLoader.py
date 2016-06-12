@@ -81,12 +81,3 @@ class DatasetLoader:
         if lines_not_parsed:
             raise Exception('Error parsing file. Following lines contains errors: \n' + str(lines_not_parsed))
         return features
-
-
-#------------------------------------------------------------------------
-#------------------------------------------------------------------------
-if __name__ == "__main__":
-
-    loader = DatasetLoader()
-    features = loader.LoadFeatures('/home/davide/Dropbox/Università/IRSW/esame/dataset/training_set_features.csv')
-    tweets = loader.LoadTweets('/home/davide/Dropbox/Università/IRSW/esame/dataset/training_set_text.csv')
