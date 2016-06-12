@@ -34,12 +34,30 @@ def RemoveStopWords(phrase):
     new_phrase = [word for word in phrase.split() if word not in stopwords and len(word)>1]
     return ' '.join(new_phrase)
 
+def RemoveTwitterUsernames(phrase):
+    return re.sub(r'(?<=^|(?<=[^a-zA-Z0-9-_\.]))@([A-Za-z]+[A-Za-z0-9_]+)', '', phrase, flags=re.IGNORECASE)
 
-def ProcessPhrase(phrase):
+
+def ProcessPhrase(phrase, debug=False):
     lower_phrase = phrase.lower()
+    if debug:
+        print("lower phrase: '"+lower_phrase+"'")
+
     no_url = RemoveURLandEmails(lower_phrase)
-    no_punctuation = RemovePunctuation(no_url)
+    if debug:
+        print("without urls: '" + no_url + "'")
+
+    no_username = RemoveTwitterUsernames(no_url)
+    if debug:
+        print("without usernames: '" + no_username + "'")
+
+    no_punctuation = RemovePunctuation(no_username)
+    if debug:
+        print("without punctuation: '" + no_punctuation + "'")
+
     no_stopwords = RemoveStopWords(no_punctuation)
+    if debug:
+        print("without stop words: '" + no_stopwords + "'")
 
     return no_stopwords
 
