@@ -16,6 +16,7 @@ def RemoveURLandEmails(phrase):
 
 '''
 @:author Davide
+@:param phrase the string to be processed
 Stopwords from  http://www.ranks.nl/stopwords/italian
 Added stopwords: 'dell','dall'
 '''
@@ -34,10 +35,42 @@ def RemoveStopWords(phrase):
     new_phrase = [word for word in phrase.split() if word not in stopwords and len(word)>1]
     return ' '.join(new_phrase)
 
+'''
+@:author Davide
+@:param phrase the string to be processed
+'''
 def RemoveTwitterUsernames(phrase):
     return re.sub(r'(?<=^|(?<=[^a-zA-Z0-9-_\.]))@([A-Za-z]+[A-Za-z0-9_]+)', '', phrase, flags=re.IGNORECASE)
 
+'''
+@:author Davide
+@:param phrase the string to be processed
+Simple algorithm for removing excessive letters repetitions in phrase's words
+'''
+def FixMultipleLetters(phrase):
+    counter = 0
+    previousLetter = ''
+    output_phrase = []
+    for word in phrase.split():
+        if len(word) < 3:
+            continue
+        output_word = []
+        for c in word:
+            if c == previousLetter:
+                counter += 1
+            else:
+                counter = 1
 
+            if counter < 3:
+                output_word.append(c)
+            previousLetter = c
+        output_phrase.append(''.join(output_word))
+    return ' '.join(output_phrase)
+
+'''
+@:author Davide
+@:param phrase the string to be processed
+'''
 def ProcessPhrase(phrase, debug=False):
     lower_phrase = phrase.lower()
     if debug:
@@ -59,14 +92,19 @@ def ProcessPhrase(phrase, debug=False):
     if debug:
         print("without stop words: '" + no_stopwords + "'")
 
-    return no_stopwords
+    no_letters_repetitions = FixMultipleLetters(no_stopwords)
+    if debug:
+        print("without excessice letters repetitions: '" + no_stopwords + "'")
 
+    return no_letters_repetitions
 
 if __name__ == "__main__":
     #test_str2 = u"Mario Monti: False illusioni, sgradevoli realtà http://t.co/UrlhqFsd Dall'Italia la possibile disintegrazione dell'Unione Europea"
-    test_str2 = u"@mauryred82 l'ho letto quell'articolo in treno sul CORRIERE DELLA SERA... parole durissime..ed e' MARIO MONTI..un moderato.. SIAM MESSI MALE"
-
+    '''test_str2 = u"@mauryred82 l'ho letto quell'articolo in treno sul CORRIERE DELLA SERA... parole durissime..ed e' MARIO MONTI..un moderato.. SIAM MESSI MALE"
     processed = ProcessPhrase(test_str2)
 
     print(test_str2)
-    print(processed)
+    print(processed)'''
+
+    test_phrase = 'ciaoooooo mondooooo we wellaaa'
+    print(FixMultipleLetters(test_phrase))
