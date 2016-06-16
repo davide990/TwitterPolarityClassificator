@@ -42,7 +42,7 @@ class DatasetLoader:
         line_counter = 1
         lines_not_parsed = []
 
-        with open(fname) as f:
+        with open(fname, encoding="utf8") as f:
             for line in f:
                 try:
                     tweet = self._parseText(line)
