@@ -1,10 +1,14 @@
+import os.path
 import DatasetLoader
 import TweetsCleaner
 import VectorModel
 
 if __name__ == "__main__":
 
-    path_dataset_dav_windows = 'C:/Users/davide/Dropbox/Università/IRSW/esame/dataset/training_set_text.csv'
+    DEBUGMODE = 1;
+
+    path_dataset_dav_windows = 'training_set_text.csv'
+    path_model_file = 'model.dat'
 
     cleaner = TweetsCleaner.TweetsCleaner()
     loader = DatasetLoader.DatasetLoader()
@@ -24,10 +28,11 @@ if __name__ == "__main__":
         count += 1
 
     model = VectorModel.VectorModel()
-    tfidf = model.get_tfidf(phrases_tuples)
-
-    model.persist_tfidf(tfidf,'C:/Users/davide/Dropbox/Università/IRSW/esame/dataset/boh.csv')
-    dd = model.deserialize_tfidf('C:/Users/davide/Dropbox/Università/IRSW/esame/dataset/boh.csv')
+    if not DEBUGMODE or not os.path.exists(path_model_file):
+        tfidf = model.get_tfidf(phrases_tuples)
+        model.persist_tfidf(tfidf,path_model_file)
+    else:
+        tfidf = model.deserialize_tfidf(path_model_file)
 
     doc_index = model.get_doc_index(tfidf)
     print(doc_index)
