@@ -7,8 +7,8 @@ if __name__ == "__main__":
 
     DEBUGMODE = 1;
 
-    path_dataset_dav_windows = 'training_set_text.csv'
-    path_model_file = 'model.dat'
+    path_dataset_dav_windows = 'Dati/training_set_text.csv'
+    path_model_file = 'Dati/model.dat'
 
     cleaner = TweetsCleaner.TweetsCleaner()
     loader = DatasetLoader.DatasetLoader()
@@ -19,7 +19,7 @@ if __name__ == "__main__":
    #print(tweets_cleaned)
 
 
-    all_phrases = list(tweets_cleaned.values())[:100]
+    all_phrases = list(tweets_cleaned.values())
 
     count = 0
     phrases_tuples = []
@@ -35,4 +35,4 @@ if __name__ == "__main__":
         tfidf = model.deserialize_tfidf(path_model_file)
 
     doc_index = model.get_doc_index(tfidf)
-    print(doc_index)
+    print(tfidf)
