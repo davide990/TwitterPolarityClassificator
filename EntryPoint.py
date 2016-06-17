@@ -2,6 +2,7 @@ import os.path
 import DatasetLoader
 import TweetsCleaner
 import VectorModel
+import BayesanClassificator
 
 if __name__ == "__main__":
 
@@ -37,4 +38,8 @@ if __name__ == "__main__":
         tfidf = model.deserialize_tfidf(path_model_file)
 
     doc_index = model.get_doc_index(tfidf)
-    print(tfidf)
+
+    classificator = BayesanClassificator.BayesanClassificator()
+    classificator.training(tfidf, classes_dataset, 4)
+
+    #print(tfidf)

@@ -93,13 +93,14 @@ class DatasetLoader:
         polarityClass = {}
         lineCount = 0
         for id in features:
-            if features[id][1] == 1 and features[id][2] == 1:
+            if features[id][1] == '1' and features[id][2] == '1':
                 polarityClass[lineCount] = 4
-            elif features[id][1] == 1 and features[id][2] == 0:
+            elif features[id][1] == '1' and features[id][2] == '0':
                 polarityClass[lineCount] = 2
-            elif features[id][1] == 0 and features[id][2] == 1:
+            elif features[id][1] == '0' and features[id][2] == '1':
                 polarityClass[lineCount] = 3
-            elif features[id][1] == 0 and features[id][2] == 0:
+            elif features[id][1] == '0' and features[id][2] == '0':
                 polarityClass[lineCount] = 1
+            lineCount+=1
 
         return polarityClass
