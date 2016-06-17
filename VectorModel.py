@@ -2,6 +2,7 @@ import math
 import pickle
 from scipy import linalg
 import numpy
+import matplotlib.pyplot as plt
 
 '''
 
@@ -57,6 +58,18 @@ class VectorModel:
         sigma[sigma_values] = 0
         reconstructedMatrix = numpy.dot(numpy.dot(u, linalg.diagsvd(sigma, len(tfidf), len(vt))), vt)
         return reconstructedMatrix
+
+    '''
+    @:author Davide
+    @:param pmi the PMI dictionary
+
+    Plot the PMI values.
+    '''
+    def plot_pmi(self, pmi):
+        pmi_values = [p[1] for p in pmi]
+        plt.plot(pmi_values)
+        plt.ylabel('PMI values')
+        plt.show()
 
     '''
     @:author Davide
