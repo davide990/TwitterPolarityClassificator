@@ -1,5 +1,7 @@
 import math
 import pickle
+from scipy import linalg
+import numpy
 
 '''
 
@@ -10,7 +12,16 @@ class VectorModel:
         return super().__init__(**kwargs)
 
     '''
+    ritorna l'indice doc-terms in versione tabellare (lista di liste)
+    '''
+    def get_doc_index_table(self, doc_index):
+        return list(doc_index.values())
 
+    '''
+    @:author Davide, Domenico
+    @:param tfidf the TF-IDF weights dictionary
+    @:return a dictionary where the key is an arbitrary value that indicate the document, and the value is a row
+                containing the weights of each word within the document.
     '''
     def get_doc_index(self, tfidf):
         index = {}
@@ -35,13 +46,20 @@ class VectorModel:
 
         return index
 
-
-    def LSA(self, doc_index):
-        print('implementami')
-
-
+    '''
+    @:author Davide, Domenico
+    @:param sigma_values valori indici delle dimensioni DA ELIMINARE
+    @:param tfidf in versione tabellare!
+    '''
+    def LSA(self, tfidf, sigma_values):
+        #calcolo la singular value decomposition
+        u, sigma, vt = linalg.svd(tfidf)
+        sigma[sigma_values] = 0
+        reconstructedMatrix = numpy.dot(numpy.dot(u, linalg.diagsvd(sigma, len(tfidf), len(vt))), vt)
+        return reconstructedMatrix
 
     '''
+    @:author Davide
     Calcola i vettori dei pesi per il dataset. Struttura del dizionario:
 
     {
@@ -82,6 +100,7 @@ class VectorModel:
         return dict
 
     '''
+    @:author Davide
     Calcola il dizionario delle frequenze delle singole parole nelle frasi date in ingresso. Se frequencies è fornito,
     vengono aggiornate sue frequenze
     '''
@@ -108,7 +127,7 @@ class VectorModel:
         return dict
 
     '''
-
+    @:author Davide, Domenico
     '''
     def deserialize_tfidf(self, fname):
         with open(fname, 'rb') as pkl_file:
@@ -116,7 +135,7 @@ class VectorModel:
         return data
 
     '''
-
+    @:author Davide, Domenico
     '''
     def persist_tfidf(self, tfidf, fname):
         with open(fname, 'wb') as output:
