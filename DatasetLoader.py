@@ -81,3 +81,25 @@ class DatasetLoader:
         if lines_not_parsed:
             raise Exception('Error parsing file. Following lines contains errors: \n' + str(lines_not_parsed))
         return features
+
+    """
+        @:author Domenico
+        @:param features the list of the features to polarity classification and irony detection
+        @:return a dictionary containing the ID of the tweets as keys, and the polarity class as values
+    """
+
+    def createClasses(self, features):
+
+        polarityClass = {}
+        lineCount = 0
+        for id in features:
+            if features[id][1] == 1 and features[id][2] == 1:
+                polarityClass[lineCount] = 4
+            elif features[id][1] == 1 and features[id][2] == 0:
+                polarityClass[lineCount] = 2
+            elif features[id][1] == 0 and features[id][2] == 1:
+                polarityClass[lineCount] = 3
+            elif features[id][1] == 0 and features[id][2] == 0:
+                polarityClass[lineCount] = 1
+
+        return polarityClass

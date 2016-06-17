@@ -8,6 +8,7 @@ if __name__ == "__main__":
     DEBUGMODE = 1;
 
     path_dataset_dav_windows = 'Dati/training_set_text.csv'
+    path_class_csv = 'Dati/training_set_features.csv'
     path_model_file = 'Dati/model.dat'
 
     cleaner = TweetsCleaner.TweetsCleaner()
@@ -15,8 +16,9 @@ if __name__ == "__main__":
 
     tweets_dataset = loader.LoadTweets(path_dataset_dav_windows)
     tweets_cleaned = cleaner.ProcessDatasetDict(tweets_dataset)
+    features_dataset = loader.LoadFeatures(path_class_csv)
+    classes_dataset = loader.createClasses(features_dataset)
 
-   #print(tweets_cleaned)
 
 
     all_phrases = list(tweets_cleaned.values())
