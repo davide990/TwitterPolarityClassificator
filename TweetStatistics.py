@@ -1,10 +1,30 @@
 import math
 import pickle
+import numpy
 
 class Statistics:
 
     def __init__(self, **kwargs):
         return super().__init__(**kwargs)
+
+
+    '''
+    @:author Davide
+    @:param pmi the PMI list
+    @:param percentile a value in [0,100]
+    @:return two list of PMI splitted by the percentile value
+    '''
+    def split_pmi_by_percentile(self, pmi, percentile):
+        a = []
+        b = []
+        pmi_values = [p[1] for p in pmi]
+        threshold = numpy.percentile(pmi_values, percentile)
+        for i in range(0,len(pmi_values)):
+            if pmi_values[i] < threshold:
+                a.append(pmi[i])
+            else:
+                b.append(pmi[i])
+        return a,b
 
     '''
     @:author Davide
@@ -167,3 +187,4 @@ class Statistics:
     def persist_pmi(self, pmi, fname):
         with open(fname, 'wb') as output:
             pickle.dump(pmi, output)
+
