@@ -41,6 +41,12 @@ class BayesanClassificator:
                 apriori_prob[word][cont] = c/(element_in_class[cont]+element_total+smooth)
                 cont+=1
 
+        """
+            Aggiungo le probabilità per le parole non presenti nel training set
+        """
+        apriori_prob['UNKNOW'] = [smooth/(element_in_class[cont]+element_total+smooth) for cont in range(0,4)]
+        prob['UNKNOW'] = smooth/(element_total+smooth)
+
         self.classificator = {'apriori': apriori_prob, 'prob': prob}
         print(self.classificator)
 
