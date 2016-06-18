@@ -16,7 +16,7 @@ class BayesanClassificator:
     @:return classificator model
 
     """
-    def training(self, trainingSet, classSet, classNum):
+    def training(self, trainingSet, classSet, classNum, smooth = 0):
 
         apriori_prob= {}
         prob = {}
@@ -25,7 +25,7 @@ class BayesanClassificator:
 
         #Calcolo le frequenze di ogni termine nelle classi
         for word in trainingSet:
-            apriori_prob[word] = [0]*4
+            apriori_prob[word] = [smooth]*4
             prob[word] = 0
             for doc in trainingSet[word]:
                 prob[word] += 1
@@ -38,7 +38,7 @@ class BayesanClassificator:
             cont = 0
             prob[word] = prob[word]/element_total
             for c in apriori_prob[word]:
-                apriori_prob[word][cont] = c/element_in_class[cont]
+                apriori_prob[word][cont] = c/(element_in_class[cont]+element_total+smooth)
                 cont+=1
 
         self.classificator = {'apriori': apriori_prob, 'prob': prob}

@@ -18,6 +18,10 @@ if __name__ == "__main__":
     tweets_dataset = loader.LoadTweets(path_dataset_dav_windows)
     tweets_cleaned = cleaner.ProcessDatasetDict(tweets_dataset)
     features_dataset = loader.LoadFeatures(path_class_csv)
+    """
+        Trasforma il vettore delle features in un dizionario con chiave IdDoc e valore la classe corrispondente
+        (1 : neutra, 2: positiva, 3: negativa, 4: mista
+    """
     classes_dataset = loader.createClasses(features_dataset)
 
 
@@ -40,6 +44,6 @@ if __name__ == "__main__":
     doc_index = model.get_doc_index(tfidf)
 
     classificator = BayesanClassificator.BayesanClassificator()
-    classificator.training(tfidf, classes_dataset, 4)
+    classificator.training(tfidf, classes_dataset, 4, 0.10)
 
     #print(tfidf)
