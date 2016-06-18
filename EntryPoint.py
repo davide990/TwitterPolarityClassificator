@@ -46,5 +46,7 @@ if __name__ == "__main__":
 
     classificator = BayesanClassificator.BayesanClassificator()
     classificator.training(tfidf, classes_dataset, 4, 0.10)
+    result = classificator.test(tfidf)
 
+    print(result)
     #print(tfidf)
