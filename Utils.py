@@ -1,10 +1,12 @@
 from sklearn.cross_validation import KFold
 
 '''
-num_docs numero totale di documenti nella collezione
+@:param num_docs number of documents in the collection
+@:param tfidf the tf-idf dictionary
+@:param nfold number of folds to be constructed
 
- TODO DA PROVARE
-
+Given a TF-IDF dictionary, this method generate a list of tuple where each tuple contains a possible separation in
+training/test set.
 '''
 def kfold(tfidf, num_docs, nfold):
     kf = KFold(num_docs, n_folds=nfold)
@@ -17,5 +19,12 @@ def kfold(tfidf, num_docs, nfold):
         for word in list(tfidf.keys()):
             tf_idf_train[word] = [couple for couple in tf_idf_train[word] if couple[0] in traincv]
             tf_idf_test[word] = [couple for couple in tf_idf_test[word] if couple[0] in testcv]
+
+            if not tf_idf_train[word]:
+                del tf_idf_train[word]
+
+            if not tf_idf_test[word]:
+                del tf_idf_test[word]
+
         folds.append((tf_idf_train,tf_idf_test))
     return folds
