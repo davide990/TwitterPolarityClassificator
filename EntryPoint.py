@@ -3,6 +3,8 @@ import DatasetLoader
 import TweetsCleaner
 import VectorModel
 import BayesanClassificator
+import Utils
+import ClassifierEvaluation
 
 if __name__ == "__main__":
 
@@ -14,6 +16,9 @@ if __name__ == "__main__":
 
     cleaner = TweetsCleaner.TweetsCleaner()
     loader = DatasetLoader.DatasetLoader()
+    model = VectorModel.VectorModel()
+    classificator = BayesanClassificator.BayesanClassificator()
+    evaluator = ClassifierEvaluation.ClassifierEvaluation()
 
     tweets_dataset = loader.LoadTweets(path_dataset_dav_windows)
     tweets_cleaned = cleaner.ProcessDatasetDict(tweets_dataset)
@@ -27,6 +32,9 @@ if __name__ == "__main__":
 
 
 
+    """
+        Genero il Modello TF-IDF
+    """
     all_phrases = list(tweets_cleaned.values())
 
     count = 0
@@ -35,7 +43,6 @@ if __name__ == "__main__":
         phrases_tuples.append((count,phrase))
         count += 1
 
-    model = VectorModel.VectorModel()
     if not DEBUGMODE or not os.path.exists(path_model_file):
         tfidf = model.get_tfidf(phrases_tuples)
         model.persist_tfidf(tfidf,path_model_file)
@@ -44,7 +51,31 @@ if __name__ == "__main__":
 
     doc_index = model.get_doc_index(tfidf)
 
-    classificator = BayesanClassificator.BayesanClassificator()
-    classificator.training(tfidf, classes_dataset, 4, 0.10)
+    """
+        Genero i kfold
+    """
+    fold_list = Utils.kfold(tfidf, count, 10)
 
+
+    precision = []
+    recall = []
+    fscore = []
+    for fold in fold_list:
+        """
+            Addestro il classificatore
+        """
+        classificator.training(fold[0], classes_dataset, 4, 0.10)
+        """
+            Eseguo il test
+        """
+        result = classificator.test(fold[1])
+
+        """
+            Valuto il classificatore
+        """
+        precision.append(evaluator.Precision(result, classes_dataset))
+        recall.append(evaluator.Recall(result, classes_dataset))
+        fscore.append(evaluator.F1score(result, classes_dataset))
+
+    print(precision)
     #print(tfidf)

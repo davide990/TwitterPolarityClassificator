@@ -11,8 +11,10 @@ class BayesanClassificator:
     """
 
     @:author Domenico
-    @:param trainingSet a dictionary with inverted index of training set, classSet a dictionary with class label
+    @:param trainingSet a dictionary with inverted index of training set,
+    @:param classSet a dictionary with class label
     @:param classNum number of class in training set
+    @:param smooth value for additive smooth
     @:return classificator model
 
     """
@@ -44,14 +46,55 @@ class BayesanClassificator:
         """
             Aggiungo le probabilità per le parole non presenti nel training set
         """
-        apriori_prob['UNKNOW'] = [smooth/(element_in_class[cont]+element_total+smooth) for cont in range(0,4)]
+        apriori_prob['UNKNOW'] = [
+                                  smooth/(element_in_class[cont]+element_total+smooth)
+                                  for cont in range(0,4)
+                                  ]
         prob['UNKNOW'] = smooth/(element_total+smooth)
 
-        self.classificator = {'apriori': apriori_prob, 'prob': prob}
+        self.classificator = {
+                              'apriori': apriori_prob,
+                              'term_prob': prob,
+                              'class_prob': [element_in_class[i]/element_total for i in range(0,4)]
+                              }
+
         print(self.classificator)
 
         return self.classificator
 
 
     def test(self, testSet):
-        pass
+
+        test_dict = {}
+        result_dict = {}
+        for word in testSet:
+            if word in self.classificator['apriori']:
+                docList = testSet[word]
+                for doc in docList:
+                    if doc in test_dict:
+                        test_dict[doc[0]] = [
+                                            test_dict[doc[0]][i]*self.classificator['apriori'][word][i]/self.classificator['term_prob'][word]
+                                            for i in range(0,4)
+                                         ]
+                    else:
+                        test_dict[doc[0]]=[self.classificator['apriori'][word][i]*self.classificator['class_prob'][i]/self.classificator['term_prob'][word]
+                                        for i in range(0,4)
+                                        ]
+            else:
+                docList = testSet[word]
+                for doc in docList:
+                    if doc in test_dict:
+                        test_dict[doc[0]] = [
+                            test_dict[doc[0]][i] * self.classificator['apriori']['UNKNOW'][i] / self.classificator['term_prob']['UNKNOW']
+                            for i in range(0, 4)
+                            ]
+                    else:
+                        test_dict[doc[0]] = [self.classificator['apriori']['UNKNOW'][i] * self.classificator['class_prob'][i] /
+                                          self.classificator['term_prob']['UNKNOW']
+                                          for i in range(0, 4)
+                                       ]
+        for doc in test_dict:
+            result_dict[doc] = test_dict[doc].index(max(test_dict[doc]))
+
+        return result_dict
+
