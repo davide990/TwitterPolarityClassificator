@@ -1,4 +1,5 @@
 import re
+from sklearn import preprocessing
 
 '''
 @:author Davide
@@ -103,3 +104,9 @@ class DatasetLoader:
             lineCount+=1
 
         return polarityClass
+
+    '''
+    '''
+    def NormalizeDataset(self, features):
+        min_max_scaler = preprocessing.MinMaxScaler()
+        return min_max_scaler.fit_transform(features)

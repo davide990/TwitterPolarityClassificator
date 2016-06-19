@@ -5,10 +5,11 @@ import VectorModel
 import BayesanClassificator
 import Utils
 import ClassifierEvaluation
+import numpy
 
 if __name__ == "__main__":
 
-    DEBUGMODE = 1;
+    DEBUGMODE = 0
 
     path_dataset_dav_windows = 'Dati/training_set_text.csv'
     path_class_csv = 'Dati/training_set_features.csv'
@@ -51,12 +52,40 @@ if __name__ == "__main__":
 
     doc_index = model.get_doc_index(tfidf)
 
+    #applico LSA
+    reduced = model.LSA(model.get_doc_index_table(doc_index), 100)
+    #scalo in [0,1]
+    reduced = loader.NormalizeDataset(reduced)
+
+    #prendo le etichette delle classi per la gold solution
+    labels = numpy.array(list(classes_dataset.values()))
     """
         Genero i kfold
     """
-    fold_list = Utils.kfold(tfidf, count, 10)
+    fold_list = Utils.kfold2(reduced.shape[0], 10)
 
+    precision = []
+    recall = []
+    fscore = []
 
+    for fold in fold_list:
+        train = reduced[fold[0], :]
+        test = reduced[fold[1], :]
+        classificator.TrainMultinomialBayes(train, labels[fold[0]])
+        prediction = classificator.Predict(test)
+
+        accuracy = evaluator.Accuracy(prediction, classes_dataset)
+        precision.append(evaluator.Precision(prediction, classes_dataset))
+        recall.append(evaluator.Recall(prediction, classes_dataset))
+        fscore.append(evaluator.F1score(prediction, classes_dataset))
+        print('Accuracy: '+str(accuracy))
+
+    print('DONE')
+    print('Precision: ' + str(precision))
+    print('Recall: ' + str(recall))
+    print('FScore: ' + str(fscore))
+
+    '''
     precision = []
     recall = []
     fscore = []
@@ -78,4 +107,8 @@ if __name__ == "__main__":
         fscore.append(evaluator.F1score(result, classes_dataset))
 
     print(precision)
+    '''
+
+
+
     #print(tfidf)

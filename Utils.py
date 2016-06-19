@@ -30,3 +30,10 @@ def kfold(tfidf, num_docs, nfold):
     return folds
 
 
+def kfold2(num_docs, nfold):
+    kf = KFold(num_docs, n_folds=nfold)
+
+    folds = []
+    for traincv, testcv in kf:
+        folds.append((traincv,testcv))
+    return folds

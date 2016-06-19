@@ -1,3 +1,5 @@
+from sklearn.naive_bayes import MultinomialNB
+
 '''
 
 @:author Domenico
@@ -7,6 +9,28 @@
 class BayesanClassificator:
 
     classificator = None
+
+    '''
+    @:author Davide
+    '''
+    def TrainMultinomialBayes(self, features, targets):
+        self.classificator = MultinomialNB()
+        self.classificator.fit(features, targets)
+
+    '''
+    @:author Davide
+    '''
+    def Predict(self, features):
+        prediction = self.classificator.predict(features)
+        pred_dict = {}
+        for line in range(0, len(prediction)):
+            pred_dict[line] = prediction[line]
+
+        return pred_dict
+
+
+
+
 
     """
 
