@@ -87,19 +87,18 @@ class DatasetLoader:
         @:param features the list of the features to polarity classification and irony detection
         @:return a dictionary containing the ID of the tweets as keys, and the polarity class as values
     """
-
     def createClasses(self, features):
 
         polarityClass = {}
         lineCount = 0
         for id in features:
-            if features[id][1] == '1' and features[id][2] == '1':
+            if features[id][1] == '1' and features[id][2] == '1':       #MIXED POLARITY
                 polarityClass[lineCount] = 4
-            elif features[id][1] == '1' and features[id][2] == '0':
+            elif features[id][1] == '1' and features[id][2] == '0':     #POSITIVE POLARITY
                 polarityClass[lineCount] = 2
-            elif features[id][1] == '0' and features[id][2] == '1':
+            elif features[id][1] == '0' and features[id][2] == '1':     #NEGATIVE POLARITY
                 polarityClass[lineCount] = 3
-            elif features[id][1] == '0' and features[id][2] == '0':
+            elif features[id][1] == '0' and features[id][2] == '0':     #NO POLARITY
                 polarityClass[lineCount] = 1
             lineCount+=1
 

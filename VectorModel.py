@@ -3,6 +3,7 @@ import pickle
 from scipy import linalg
 import numpy
 import matplotlib.pyplot as plt
+from sklearn.decomposition import TruncatedSVD
 
 '''
 
@@ -38,7 +39,6 @@ class VectorModel:
             for tuple in tfidf[word]:
                 id_doc = tuple[0]
                 weight = tuple[1]
-
                 if id_doc in index:
                     pos = words_pos[word]
                     index[id_doc][pos] = weight
@@ -52,12 +52,10 @@ class VectorModel:
     @:param sigma_values valori indici delle dimensioni DA ELIMINARE
     @:param tfidf in versione tabellare!
     '''
-    def LSA(self, tfidf, sigma_values):
-        #calcolo la singular value decomposition
-        u, sigma, vt = linalg.svd(tfidf)
-        sigma[sigma_values] = 0
-        reconstructedMatrix = numpy.dot(numpy.dot(u, linalg.diagsvd(sigma, len(tfidf), len(vt))), vt)
-        return reconstructedMatrix
+    def LSA(self, tfidf, ncomponents):
+        svd = TruncatedSVD(n_components=ncomponents, random_state=42)
+        reduced = svd.fit_transform(tfidf)
+        return reduced
 
     '''
     @:author Davide
