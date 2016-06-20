@@ -64,13 +64,16 @@ class DatasetLoader:
 
         -> "idtwitter",subj,opos,oneg,iro,lpos,lneg,top
     '''
-    def LoadFeatures(self, fname):
+    def LoadFeatures(self, fname, numFeatures = None):
         features = {}
         line_counter = 1
         lines_not_parsed = []
 
         with open(fname) as f:
             for line in f:
+                if numFeatures != None:
+                    if line_counter > numFeatures:
+                        break
                 try:
                     feature = self._parseFeature(line)
                     features[feature[0]] = feature[1:]

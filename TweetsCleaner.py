@@ -76,6 +76,16 @@ class TweetsCleaner:
         return ' '.join(output_phrase)
 
     '''
+    @:author Davide, Domenico
+    '''
+    def ProcessEmoticons(self, phrase):
+        reg_positive = r'([<][3])|([\;|\:|\=][-]*[3|P|\)|\*|\]|D|\>])|(XD|xD)'
+        reg_negative = r'[\:|\=][\,|\']*[-]*[\\|\/|\<|\(|\[|o|O]'
+        without_positives = re.sub(reg_positive, ' POSITIVE_EMOTICON ', phrase, flags=re.IGNORECASE)
+        without_negatives = re.sub(reg_negative, ' NEGATIVE_EMOTICON ', without_positives, flags=re.IGNORECASE)
+        return without_negatives
+
+    '''
     @:author Davide
     @:param phrase the string to be processed
     '''
@@ -92,7 +102,11 @@ class TweetsCleaner:
         if debug:
             print("without usernames: '" + no_username + "'")
 
-        no_punctuation = self.__removePunctuation(no_username)
+        no_emoticon = self.ProcessEmoticons(no_username)
+        if debug:
+            print("without emoticons: '" + no_emoticon + "'")
+
+        no_punctuation = self.__removePunctuation(no_emoticon)
         if debug:
             print("without punctuation: '" + no_punctuation + "'")
 

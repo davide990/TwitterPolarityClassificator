@@ -6,6 +6,7 @@ import BayesanClassificator
 import Utils
 import ClassifierEvaluation
 import numpy
+import SVMClassifier
 
 if __name__ == "__main__":
 
@@ -23,7 +24,7 @@ if __name__ == "__main__":
 
     tweets_dataset = loader.LoadTweets(path_dataset_dav_windows)
     tweets_cleaned = cleaner.ProcessDatasetDict(tweets_dataset)
-    features_dataset = loader.LoadFeatures(path_class_csv)
+    features_dataset = loader.LoadFeatures(path_class_csv, 400)
 
     """
         Trasforma il vettore delle features in un dizionario con chiave IdDoc e valore la classe corrispondente
@@ -31,12 +32,10 @@ if __name__ == "__main__":
     """
     classes_dataset = loader.createClasses(features_dataset)
 
-
-
     """
         Genero il Modello TF-IDF
     """
-    all_phrases = list(tweets_cleaned.values())
+    all_phrases = list(tweets_cleaned.values())[:400]
 
     count = 0
     phrases_tuples = []
@@ -68,11 +67,15 @@ if __name__ == "__main__":
     recall = []
     fscore = []
 
+    svm = SVMClassifier.SVMClassifier()
+
     for fold in fold_list:
         train = reduced[fold[0], :]
         test = reduced[fold[1], :]
-        classificator.TrainMultinomialBayes(train, labels[fold[0]])
-        prediction = classificator.Predict(test)
+        #classificator.TrainMultinomialBayes(train, labels[fold[0]])
+        #svm.trainRbfSVM(train, labels[fold[0]])
+        svm.trainLinearSVM(train, labels[fold[0]])
+        prediction = svm.Predict(test)
 
         accuracy = evaluator.Accuracy(prediction, classes_dataset)
         precision.append(evaluator.Precision(prediction, classes_dataset))
