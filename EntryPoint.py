@@ -47,7 +47,9 @@ def BayesTest(features, labels):
             fscore.append(evaluator.F1score(prediction, classes_dataset))
             print('Accuracy: ' + str(accuracy))
             """
-    jsonFile = open("Dati/BayesResult.json", "w")
+    numfeatures = features.shape[1]
+    fname = 'Dati/BayesResult_numfeatures_' + str(numfeatures) + '.json'
+    jsonFile = open(fname, "w")
     json.dump(type_eval, jsonFile)
 
     """
@@ -59,6 +61,7 @@ def BayesTest(features, labels):
 
 
 def SVMtest(features, labels):
+
     fold_list = Utils.kfold2(features.shape[0], 10)
     #precision = []
     #recall = []
@@ -88,7 +91,9 @@ def SVMtest(features, labels):
             type_eval[type][fold_label]["f1score"] = evaluator.F1score(prediction, classes_dataset)
             nfold += 1
 
-    jsonFile = open("Dati/SVMResult.json", "w")
+    numfeatures = features.shape[1]
+    fname = 'Dati/SVMResult_numfeatures_'+str(numfeatures)+'.json'
+    jsonFile = open(fname, "w")
     json.dump(type_eval, jsonFile)
 
     """
