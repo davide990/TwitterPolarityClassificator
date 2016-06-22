@@ -1,4 +1,6 @@
 from sklearn.naive_bayes import MultinomialNB
+from sklearn.naive_bayes import GaussianNB
+from sklearn.naive_bayes import BernoulliNB
 
 '''
 
@@ -15,6 +17,21 @@ class BayesanClassificator:
     '''
     def TrainMultinomialBayes(self, features, targets):
         self.classificator = MultinomialNB()
+        self.classificator.fit(features, targets)
+
+    '''
+        @:author Davide
+    '''
+    def TrainBernoulliBayes(self, features, targets):
+        self.classificator = BernoulliNB()
+        self.classificator.fit(features, targets)
+
+    '''
+        @:author Davide
+        '''
+
+    def TrainGaussianBayes(self, features, targets):
+        self.classificator = GaussianNB()
         self.classificator.fit(features, targets)
 
     '''
