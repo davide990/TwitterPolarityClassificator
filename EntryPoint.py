@@ -8,9 +8,73 @@ import ClassifierEvaluation
 import numpy
 import SVMClassifier
 
+def BayesTest(features, labels):
+    fold_list = Utils.kfold2(features.shape[0], 10)
+    precision = []
+    recall = []
+    fscore = []
+    classifierType = ['multinomial', 'bernoulli', 'gaussian']
+    classificator = BayesanClassificator.BayesanClassificator()
+    evaluator = ClassifierEvaluation.ClassifierEvaluation()
+    for type in classifierType:
+        for fold in fold_list:
+            train = features[fold[0], :]
+            test = features[fold[1], :]
+            if type=='multinomial':
+                classificator.TrainMultinomialBayes(train, labels[fold[0]])
+            elif type=='bernoulli':
+                classificator.TrainBernoulliBayes(train, labels[fold[0]])
+            elif type=='gaussian':
+                classificator.TrainGaussianBayes(train, labels[fold[0]])
+
+            prediction = classificator.Predict(test)
+
+            accuracy = evaluator.Accuracy(prediction, classes_dataset)
+            precision.append(evaluator.Precision(prediction, classes_dataset))
+            recall.append(evaluator.Recall(prediction, classes_dataset))
+            fscore.append(evaluator.F1score(prediction, classes_dataset))
+            print('Accuracy: ' + str(accuracy))
+
+    print('DONE')
+    print('Precision: ' + str(precision))
+    print('Recall: ' + str(recall))
+    print('FScore: ' + str(fscore))
+
+def SVMtest(features, labels):
+    fold_list = Utils.kfold2(features.shape[0], 10)
+    precision = []
+    recall = []
+    fscore = []
+    kernels = ['linear', 'rbf']
+    svm = SVMClassifier.SVMClassifier()
+    evaluator = ClassifierEvaluation.ClassifierEvaluation()
+    for kernel in kernels:
+        for fold in fold_list:
+            train = features[fold[0], :]
+            test = features[fold[1], :]
+            if kernel=='linear':
+                svm.trainLinearSVM(train, labels[fold[0]])
+            elif kernel=='rbf':
+                svm.trainRbfSVM(train, labels[fold[0]])
+
+            prediction = svm.Predict(test)
+
+            accuracy = evaluator.Accuracy(prediction, classes_dataset)
+            precision.append(evaluator.Precision(prediction, classes_dataset))
+            recall.append(evaluator.Recall(prediction, classes_dataset))
+            fscore.append(evaluator.F1score(prediction, classes_dataset))
+            print('Accuracy: ' + str(accuracy))
+
+    print('DONE')
+    print('Precision: ' + str(precision))
+    print('Recall: ' + str(recall))
+    print('FScore: ' + str(fscore))
+
+
 if __name__ == "__main__":
 
     DEBUGMODE = 0
+    numFeatures = 100
 
     path_dataset_dav_windows = 'Dati/training_set_text.csv'
     path_class_csv = 'Dati/training_set_features.csv'
@@ -51,67 +115,12 @@ if __name__ == "__main__":
 
     doc_index = model.get_doc_index(tfidf)
 
+    # prendo le etichette delle classi per la gold solution
+    labels = numpy.array(list(classes_dataset.values()))
+
     #applico LSA
-    reduced = model.LSA(model.get_doc_index_table(doc_index), 100)
+    reduced = model.LSA(model.get_doc_index_table(doc_index), numFeatures)
     #scalo in [0,1]
     reduced = loader.NormalizeDataset(reduced)
 
-    #prendo le etichette delle classi per la gold solution
-    labels = numpy.array(list(classes_dataset.values()))
-    """
-        Genero i kfold
-    """
-    fold_list = Utils.kfold2(reduced.shape[0], 10)
-
-    precision = []
-    recall = []
-    fscore = []
-
-    svm = SVMClassifier.SVMClassifier()
-
-    for fold in fold_list:
-        train = reduced[fold[0], :]
-        test = reduced[fold[1], :]
-        #classificator.TrainMultinomialBayes(train, labels[fold[0]])
-        #svm.trainRbfSVM(train, labels[fold[0]])
-        svm.trainLinearSVM(train, labels[fold[0]])
-        prediction = svm.Predict(test)
-
-        accuracy = evaluator.Accuracy(prediction, classes_dataset)
-        precision.append(evaluator.Precision(prediction, classes_dataset))
-        recall.append(evaluator.Recall(prediction, classes_dataset))
-        fscore.append(evaluator.F1score(prediction, classes_dataset))
-        print('Accuracy: '+str(accuracy))
-
-    print('DONE')
-    print('Precision: ' + str(precision))
-    print('Recall: ' + str(recall))
-    print('FScore: ' + str(fscore))
-
-    '''
-    precision = []
-    recall = []
-    fscore = []
-    for fold in fold_list:
-        """
-            Addestro il classificatore
-        """
-        classificator.training(fold[0], classes_dataset, 4, 0.10)
-        """
-            Eseguo il test
-        """
-        result = classificator.test(fold[1])
-
-        """
-            Valuto il classificatore
-        """
-        precision.append(evaluator.Precision(result, classes_dataset))
-        recall.append(evaluator.Recall(result, classes_dataset))
-        fscore.append(evaluator.F1score(result, classes_dataset))
-
-    print(precision)
-    '''
-
-
-
-    #print(tfidf)
+    SVMtest(reduced, labels)

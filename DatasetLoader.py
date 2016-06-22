@@ -1,3 +1,4 @@
+import pickle
 import re
 from sklearn import preprocessing
 
@@ -113,3 +114,10 @@ class DatasetLoader:
     def NormalizeDataset(self, features):
         min_max_scaler = preprocessing.MinMaxScaler()
         return min_max_scaler.fit_transform(features)
+
+    '''
+        @:author Davide
+    '''
+    def persist_features(self, features, fname):
+        with open(fname, 'wb') as output:
+            pickle.dump(features, output)
