@@ -60,14 +60,19 @@ def BayesTest(features, labels):
 
 def SVMtest(features, labels):
     fold_list = Utils.kfold2(features.shape[0], 10)
-    precision = []
-    recall = []
-    fscore = []
+    #precision = []
+    #recall = []
+    #fscore = []
+    type_eval = {}
     kernels = ['linear', 'rbf']
     svm = SVMClassifier.SVMClassifier()
     evaluator = ClassifierEvaluation.ClassifierEvaluation()
+
     for kernel in kernels:
+        type_eval[kernel] = {}  # Per ogni tipo di classificatore inizializzo un dizionario
+        nfold = 1
         for fold in fold_list:
+            fold_label = "fold" + str(nfold)
             train = features[fold[0], :]
             test = features[fold[1], :]
             if kernel=='linear':
@@ -77,16 +82,27 @@ def SVMtest(features, labels):
 
             prediction = svm.Predict(test)
 
-            accuracy = evaluator.Accuracy(prediction, classes_dataset)
-            precision.append(evaluator.Precision(prediction, classes_dataset))
-            recall.append(evaluator.Recall(prediction, classes_dataset))
-            fscore.append(evaluator.F1score(prediction, classes_dataset))
-            print('Accuracy: ' + str(accuracy))
+            type_eval[type][fold_label]["accuracy"] = evaluator.Accuracy(prediction, classes_dataset)
+            type_eval[type][fold_label]["precision"] = evaluator.Precision(prediction, classes_dataset)
+            type_eval[type][fold_label]["recall"] = evaluator.Recall(prediction, classes_dataset)
+            type_eval[type][fold_label]["f1score"] = evaluator.F1score(prediction, classes_dataset)
+            nfold += 1
+
+    jsonFile = open("Dati/SVMResult.json", "w")
+    json.dump(type_eval, jsonFile)
+
+    """
+    accuracy = evaluator.Accuracy(prediction, classes_dataset)
+    precision.append(evaluator.Precision(prediction, classes_dataset))
+    recall.append(evaluator.Recall(prediction, classes_dataset))
+    fscore.append(evaluator.F1score(prediction, classes_dataset))
+    print('Accuracy: ' + str(accuracy))
 
     print('DONE')
     print('Precision: ' + str(precision))
     print('Recall: ' + str(recall))
     print('FScore: ' + str(fscore))
+    """
 
 
 if __name__ == "__main__":
