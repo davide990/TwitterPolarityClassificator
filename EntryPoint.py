@@ -1,3 +1,4 @@
+import pickle
 import os.path
 import DatasetLoader
 import TweetsCleaner
@@ -8,6 +9,8 @@ import ClassifierEvaluation
 import numpy
 import SVMClassifier
 import json
+from os import listdir
+from os.path import isfile, join
 
 def BayesTest(features, labels):
     fold_list = Utils.kfold2(features.shape[0], 10)
@@ -35,10 +38,10 @@ def BayesTest(features, labels):
 
             prediction = classificator.Predict(test)
 
-            type_eval[type][fold_label]["accuracy"] = evaluator.Accuracy(prediction, classes_dataset)
-            type_eval[type][fold_label]["precision"] = evaluator.Precision(prediction, classes_dataset)
-            type_eval[type][fold_label]["recall"] = evaluator.Recall(prediction, classes_dataset)
-            type_eval[type][fold_label]["f1score"] = evaluator.F1score(prediction, classes_dataset)
+            type_eval[type][fold_label]["accuracy"] = evaluator.Accuracy(prediction, labels)
+            type_eval[type][fold_label]["precision"] = evaluator.Precision(prediction, labels)
+            type_eval[type][fold_label]["recall"] = evaluator.Recall(prediction, labels)
+            type_eval[type][fold_label]["f1score"] = evaluator.F1score(prediction, labels)
             nfold+=1
             """
             accuracy = evaluator.Accuracy(prediction, classes_dataset)
@@ -47,18 +50,13 @@ def BayesTest(features, labels):
             fscore.append(evaluator.F1score(prediction, classes_dataset))
             print('Accuracy: ' + str(accuracy))
             """
+    '''
     numfeatures = features.shape[1]
     fname = 'Dati/BayesResult_numfeatures_' + str(numfeatures) + '.json'
     jsonFile = open(fname, "w")
     json.dump(type_eval, jsonFile)
-
-    """
-    print('DONE')
-    print('Precision: ' + str(precision))
-    print('Recall: ' + str(recall))
-    print('FScore: ' + str(fscore))
-    """
-
+    '''
+    return type_eval
 
 def SVMtest(features, labels):
 
@@ -71,11 +69,13 @@ def SVMtest(features, labels):
     svm = SVMClassifier.SVMClassifier()
     evaluator = ClassifierEvaluation.ClassifierEvaluation()
 
+
     for kernel in kernels:
         type_eval[kernel] = {}  # Per ogni tipo di classificatore inizializzo un dizionario
         nfold = 1
         for fold in fold_list:
             fold_label = "fold" + str(nfold)
+            type_eval[kernel][fold_label] = {}
             train = features[fold[0], :]
             test = features[fold[1], :]
             if kernel=='linear':
@@ -85,33 +85,46 @@ def SVMtest(features, labels):
 
             prediction = svm.Predict(test)
 
-            type_eval[type][fold_label]["accuracy"] = evaluator.Accuracy(prediction, classes_dataset)
-            type_eval[type][fold_label]["precision"] = evaluator.Precision(prediction, classes_dataset)
-            type_eval[type][fold_label]["recall"] = evaluator.Recall(prediction, classes_dataset)
-            type_eval[type][fold_label]["f1score"] = evaluator.F1score(prediction, classes_dataset)
+            type_eval[kernel][fold_label]["accuracy"] = evaluator.Accuracy(prediction, labels)
+            type_eval[kernel][fold_label]["precision"] = evaluator.Precision(prediction, labels)
+            type_eval[kernel][fold_label]["recall"] = evaluator.Recall(prediction, labels)
+            type_eval[kernel][fold_label]["f1score"] = evaluator.F1score(prediction, labels)
             nfold += 1
 
-    numfeatures = features.shape[1]
-    fname = 'Dati/SVMResult_numfeatures_'+str(numfeatures)+'.json'
-    jsonFile = open(fname, "w")
-    json.dump(type_eval, jsonFile)
+    #numfeatures = features.shape[1]
+    #fname = 'Dati/SVMResult_numfeatures_'+str(numfeatures)+'.json'
+    #jsonFile = open(fname, "w")
+    #json.dump(type_eval, jsonFile)
+    return type_eval
 
-    """
-    accuracy = evaluator.Accuracy(prediction, classes_dataset)
-    precision.append(evaluator.Precision(prediction, classes_dataset))
-    recall.append(evaluator.Recall(prediction, classes_dataset))
-    fscore.append(evaluator.F1score(prediction, classes_dataset))
-    print('Accuracy: ' + str(accuracy))
+def svm_test(filenames):
+    path_class_csv = 'Dati/training_set_features.csv'
+    loader = DatasetLoader.DatasetLoader()
+    features_dataset = loader.LoadFeatures(path_class_csv)
+    classes_dataset = loader.createClasses(features_dataset)
+    labels = numpy.array(list(classes_dataset.values()))
+    output_file = 'Dati/outSVM.json'
+    result = {}
+    for path in filenames:
+        base = os.path.basename(path)
+        fname = os.path.splitext(base)[0]   #NO extension
 
-    print('DONE')
-    print('Precision: ' + str(precision))
-    print('Recall: ' + str(recall))
-    print('FScore: ' + str(fscore))
-    """
+        with open(path, 'rb') as pkl_file:
+            print('processing file \''+fname+'\'')
+            features = pickle.load(pkl_file)
+            out = SVMtest(features, labels)
+            result[fname] = out
+            del out
+
+    jsonFile = open(output_file, "w")
+    json.dump(result, jsonFile)
 
 
-if __name__ == "__main__":
+def do_svm_test(folder_path):
+    files = [entry.path for entry in os.scandir(folder_path) if entry.is_file()]
+    svm_test(files)
 
+def previous_main():
     DEBUGMODE = 0
     numFeatures = 100
 
@@ -143,12 +156,12 @@ if __name__ == "__main__":
     count = 0
     phrases_tuples = []
     for phrase in all_phrases:
-        phrases_tuples.append((count,phrase))
+        phrases_tuples.append((count, phrase))
         count += 1
 
     if not DEBUGMODE or not os.path.exists(path_model_file):
         tfidf = model.get_tfidf(phrases_tuples)
-        model.persist_tfidf(tfidf,path_model_file)
+        model.persist_tfidf(tfidf, path_model_file)
     else:
         tfidf = model.deserialize_tfidf(path_model_file)
 
@@ -157,10 +170,13 @@ if __name__ == "__main__":
     # prendo le etichette delle classi per la gold solution
     labels = numpy.array(list(classes_dataset.values()))
 
-    #applico LSA
+    # applico LSA
     reduced = model.LSA(model.get_doc_index_table(doc_index), numFeatures)
-    #scalo in [0,1]
+    # scalo in [0,1]
     reduced = loader.NormalizeDataset(reduced)
 
-    BayesTest(reduced,labels)
-    #SVMtest(reduced, labels)
+    BayesTest(reduced, labels)
+    # SVMtest(reduced, labels)
+
+if __name__ == "__main__":
+    do_svm_test('/home/davide/PycharmProjects/features_dataset/test1/')
