@@ -22,9 +22,11 @@ def BayesTest(features, labels):
     classificator = BayesanClassificator.BayesanClassificator()
     evaluator = ClassifierEvaluation.ClassifierEvaluation()
     for type in classifierType:
+        print("Processing Type: "+str(type))
         type_eval[type] = {} #Per ogni tipo di classificatore inizializzo un dizionario
         nfold = 1
         for fold in fold_list:
+            print("Fold "+str(nfold))
             fold_label = "fold"+str(nfold)
             type_eval[type][fold_label] = {} #Per ogni fold inizializzo un dizionario
             train = features[fold[0], :]
@@ -115,6 +117,30 @@ def svm_test(filenames):
             out = SVMtest(features, labels)
             result[fname] = out
             del out
+    print("Salvo Risultati")
+    jsonFile = open(output_file, "w")
+    json.dump(result, jsonFile)
+
+def bayes_test(filenames):
+    print("Carico il Dataset")
+    path_class_csv = 'Dati/training_set_features.csv'
+    loader = DatasetLoader.DatasetLoader()
+    features_dataset = loader.LoadFeatures(path_class_csv)
+    classes_dataset = loader.createClasses(features_dataset)
+    labels = numpy.array(list(classes_dataset.values()))
+    output_file = 'Dati/outBayes.json'
+    result = {}
+    for path in filenames:
+        base = os.path.basename(path)
+        fname = os.path.splitext(base)[0]   #NO extension
+
+        with open(path, 'rb') as pkl_file:
+            print('processing file \''+fname+'\'')
+            features = pickle.load(pkl_file)
+            features = loader.NormalizeDataset(features)
+            out = BayesTest(features, labels)
+            result[fname] = out
+            del out
 
     jsonFile = open(output_file, "w")
     json.dump(result, jsonFile)
@@ -123,6 +149,10 @@ def svm_test(filenames):
 def do_svm_test(folder_path):
     files = [entry.path for entry in os.scandir(folder_path) if entry.is_file()]
     svm_test(files)
+
+def do_bayes_test(folder_path):
+    files = [entry.path for entry in os.scandir(folder_path) if entry.is_file()]
+    bayes_test(files)
 
 def previous_main():
     DEBUGMODE = 0
@@ -179,4 +209,5 @@ def previous_main():
     # SVMtest(reduced, labels)
 
 if __name__ == "__main__":
-    do_svm_test('/home/davide/PycharmProjects/features_dataset/test1/')
+    #do_svm_test('/home/davide/PycharmProjects/features_dataset/test1/')
+    do_bayes_test('Dati/LSA')
