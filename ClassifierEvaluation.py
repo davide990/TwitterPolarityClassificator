@@ -208,7 +208,6 @@ class ClassifierEvaluation:
     },
     ...
     '''
-
     def get_overall_performance_dict(self, out_json_fname, folder_path):
         files = [entry.path for entry in os.scandir(folder_path) if entry.is_file()]
         perf_dict = {}
@@ -218,6 +217,8 @@ class ClassifierEvaluation:
         perf_dict['f1score'] = {}
 
         for the_file in files:
+            if not the_file.endswith('.json'):
+                continue
             with open(the_file, 'r') as file:
                 data = json.load(file)
                 for num_features in data:
@@ -260,7 +261,7 @@ class ClassifierEvaluation:
             data = json.load(file)
             plot_id = 1
             colors = ['red', 'green', 'blue', 'yellow']
-            plt.figure(figsize=(11, 11))
+            plt.figure(figsize=(17, 9))
 
             for measure in data:
                 features = list(data[measure][kernel_type].keys())
@@ -270,7 +271,7 @@ class ClassifierEvaluation:
                 plt.barh(y_pos, values, align='center', alpha=0.4, color=colors[plot_id - 1])
                 mean_precision = list(numpy.matlib.repmat(np.mean(values), 1, len(values)))[0]
                 plt.plot(mean_precision, y_pos, linestyle='-', linewidth=1.5)
-                plt.yticks(y_pos, features, rotation=45)
+                plt.yticks(y_pos, features)
                 plt.xlabel(measure)
                 plt.ylabel('Num Features')
                 plt.grid(True)
