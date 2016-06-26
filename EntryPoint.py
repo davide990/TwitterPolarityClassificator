@@ -1,8 +1,21 @@
 import ClassifierEvaluation
+import os
 
 if __name__ == "__main__":
-    evaluator = ClassifierEvaluation.ClassifierEvaluation()
-    evaluator.get_overall_performance_dict('Dati/performance/for_plots.json', 'Dati/performance')
+    #Name of the file containing the overall classificators performances
+    overall_performance_dict_fname = 'Dati/svm_overall_results.json'
 
-    evaluator.plot_overall_precision('svm_linear.png', 'Dati/performance/for_plots/for_plots.json', 'linear')
-    evaluator.plot_overall_precision('svm_rbf.png', 'Dati/performance/for_plots/for_plots.json', 'rbf')
+    try:
+        os.remove(overall_performance_dict_fname)
+    except OSError:
+        pass
+
+    #Create a new classifier evaluator
+    evaluator = ClassifierEvaluation.ClassifierEvaluation()
+
+    #Get the overall classificators performance
+    evaluator.get_overall_performance_dict(overall_performance_dict_fname, 'Dati/')
+
+    #Create plots and save them to file
+    evaluator.plot_overall_precision('svm_linear.png', overall_performance_dict_fname, 'linear')
+    evaluator.plot_overall_precision('svm_rbf.png', overall_performance_dict_fname, 'rbf')
