@@ -192,14 +192,14 @@ class ClassifierEvaluation:
     '''
     @:author Davide
     @:param out_json_fname the output json file containing the converted dictionary
-    @:param folder_path the path to a folder containing the performance of different classifiers
+    @:param the_file json file containing the performance of different classifiers (SVM or Bayes)
 
     This method assembles all the performance of the classifiers in the json files within the given directory and
     assemble a new dictionary containing the avarage performances. The new dictionary has the following format:
 
     "[precision/recall/accuracy/f1score]":
     {
-        "[kernelType]":
+        "[MethodType]":
         {
             "[NumFeatures]": value
             ...
@@ -208,41 +208,41 @@ class ClassifierEvaluation:
     },
     ...
     '''
-    def get_overall_performance_dict(self, out_json_fname, folder_path):
-        files = [entry.path for entry in os.scandir(folder_path) if entry.is_file()]
+    def get_overall_performance_dict(self, out_json_fname, the_file):
+        #files = [entry.path for entry in os.scandir(folder_path) if entry.is_file()]
         perf_dict = {}
         perf_dict['accuracy'] = {}
         perf_dict['precision'] = {}
         perf_dict['recall'] = {}
         perf_dict['f1score'] = {}
 
-        for the_file in files:
-            if not the_file.endswith('.json'):
-                continue
-            with open(the_file, 'r') as file:
-                data = json.load(file)
-                for num_features in data:
-                    for kernel_type in data[num_features]:
-                        perf_dict['accuracy'][kernel_type] = {}
-                        perf_dict['precision'][kernel_type] = {}
-                        perf_dict['recall'][kernel_type] = {}
-                        perf_dict['f1score'][kernel_type] = {}
-                for num_features in data:
-                    for kernel_type in data[num_features]:
-                        accuracy = []
-                        precision = []
-                        recall = []
-                        fscore = []
-                        for fold in data[num_features][kernel_type]:
-                            accuracy.append(data[num_features][kernel_type][fold]['accuracy'])
-                            recall.append(data[num_features][kernel_type][fold]['recall'])
-                            precision.append(data[num_features][kernel_type][fold]['precision'])
-                            fscore.append(data[num_features][kernel_type][fold]['f1score'])
+        '''for the_file in files:
+    if not the_file.endswith('.json'):
+        continue'''
+        with open(the_file, 'r') as file:
+            data = json.load(file)
+            for num_features in data:
+                for kernel_type in data[num_features]:
+                    perf_dict['accuracy'][kernel_type] = {}
+                    perf_dict['precision'][kernel_type] = {}
+                    perf_dict['recall'][kernel_type] = {}
+                    perf_dict['f1score'][kernel_type] = {}
+            for num_features in data:
+                for kernel_type in data[num_features]:
+                    accuracy = []
+                    precision = []
+                    recall = []
+                    fscore = []
+                    for fold in data[num_features][kernel_type]:
+                        accuracy.append(data[num_features][kernel_type][fold]['accuracy'])
+                        recall.append(data[num_features][kernel_type][fold]['recall'])
+                        precision.append(data[num_features][kernel_type][fold]['precision'])
+                        fscore.append(data[num_features][kernel_type][fold]['f1score'])
 
-                        perf_dict['accuracy'][kernel_type][num_features] = np.mean(accuracy)
-                        perf_dict['precision'][kernel_type][num_features] = np.mean(precision)
-                        perf_dict['recall'][kernel_type][num_features] = np.mean(recall)
-                        perf_dict['f1score'][kernel_type][num_features] = np.mean(fscore)
+                    perf_dict['accuracy'][kernel_type][num_features] = np.mean(accuracy)
+                    perf_dict['precision'][kernel_type][num_features] = np.mean(precision)
+                    perf_dict['recall'][kernel_type][num_features] = np.mean(recall)
+                    perf_dict['f1score'][kernel_type][num_features] = np.mean(fscore)
         jsonFile = open(out_json_fname, "w")
         json.dump(perf_dict, jsonFile)
 
@@ -251,9 +251,8 @@ class ClassifierEvaluation:
     @:param out_plot_fname the output plot file name
     @:param fname the complete path to the json file containing the overall classifier performance (see
         get_overall_performance_dict(..))
-    @:param kernel_type the kernel type to evaluate in string format
-
-
+    @:param method_type the method type to evaluate in string format ('rbf' or 'linear' for SVM, 'bernoulli',
+        'multinomial' or 'gaussian' for Bayes)
     '''
 
     def plot_overall_precision(self, out_plot_fname, fname, kernel_type):
