@@ -26,7 +26,9 @@ if __name__ == "__main__":
     evaluator.plot_overall_precision('bayes_bernoulli.png', overall_bayes_performance_dict_fname, 'bernoulli')
     evaluator.plot_overall_precision('bayes_gaussian.png', overall_bayes_performance_dict_fname, 'gaussian')
     evaluator.plot_overall_precision('bayes_multinomial.png', overall_bayes_performance_dict_fname, 'multinomial')
-
+    
+    print('Done! All plots have been saved into folder \''+os.getcwd()+'\'')
+    
     try:
         os.remove(overall_svm_performance_dict_fname)
         os.remove(overall_bayes_performance_dict_fname)
